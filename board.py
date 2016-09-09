@@ -24,19 +24,35 @@ class Board:
 		if row >= self.size or col >= self.size:
 			raise exceptions.OutOfRangeException()
 		oldValue = self.model[row][col]
-		if not oldValue == 0:
+		if not oldValue == 0 and player != 0:
 			raise exceptions.OccupiedException()
-			return 
 		self.model[row][col] = player
+		if player == 1:
+			self.whiteNum = self.whiteNum + 1
+		elif player == 2:
+			self.blackNum = self.blackNum + 1
+
+	def locationAvailabel(self, coord):
+		row = coord[0]
+		col = coord[1]
+		return self.model[row][col] == 0
 
 	def currentColor(self):
-		return 1 if self.white <= self.black else 2
+		return 1 if self.whiteNum <= self.blackNum else 2
 
 	def playerColor(self):
 		return self.color
 
 	def AIColor(self):
 		return 1 - self.color
+
+	def checkDraw(self):
+		hasEmpty = False
+		for row in range(self.size):
+			for col in range(self.size):
+				if self.model[row][col] == 0:
+					hasEmpty = True
+		return not hasEmpty
 
 	def winner(self):
 		#  row
