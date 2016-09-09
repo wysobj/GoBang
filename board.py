@@ -37,6 +37,9 @@ class Board:
 		col = coord[1]
 		return self.model[row][col] == 0
 
+	def getModel(self):
+		return self.model
+
 	def currentColor(self):
 		return 1 if self.whiteNum <= self.blackNum else 2
 
@@ -137,5 +140,29 @@ class Board:
 		
 		return 0
 
+	def fork(self):
+		newBoard = Board(size = self.size, color = self.color)
+		newBoard.blackNum = self.blackNum
+		newBoard.whiteNum = self.whiteNum
+		newBoard.model = []
+		for i in range(self.size):
+			newBoard.model.append(self.model[i][0:])
+		return newBoard
 
+	def __hash__(self):
+		hashcode = 0
+		for i in range(self.size):
+			for j in range(self.size):
+				value = self.model[i][j]
+				hashcode = hashcode + i * 100 * value + j * value
+		return hashcode
+
+	def __eq__(self, other):
+		if self.size != other.size:
+			return False
+		for i in range(self.size):
+			for j in range(self.size):
+				if self.model[i][j] != other.model[i][j]:
+					return False
+		return True
 
