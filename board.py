@@ -4,7 +4,7 @@ class Board:
 
 	#white = 1, black = 2
 	def __init__(self, **args):
-		size = args.get('size', 15)
+		size = args.get('size', 10)
 		color = args.get('color', 1)
 		self.color = color % 2
 		if size > 20:
@@ -57,85 +57,111 @@ class Board:
 					hasEmpty = True
 		return not hasEmpty
 
+	def emptyBoard(self):
+		empty = True
+		for row in range(self.size):
+			for col in range(self.size):
+				if self.model[row][col] != 0:
+					empty = False
+		return empty
+
 	def winner(self):
 		#  row
 		for row in range(self.size):
-			for col in range(self.size - 4):
-				find = True
-				winnerColor = self.model[row][col]
-				if winnerColor == 0:
+			colorCount = 0
+			winnerColor = 0
+			for col in range(self.size):
+				curColor = self.model[row][col]
+				if curColor == 0:
 					continue
-				for k in range(5):
-					if not self.model[row][col+k] == winnerColor:
-						find = False
-						break
-				if find:
+				if curColor == winnerColor:
+					if winnerColor != 0:
+						colorCount += 1
+				else: 
+					winnerColor = curColor
+					colorCount = 1
+				if colorCount == 5:
 					return winnerColor
 
 		#  col			
 		for col in range(self.size):
-			for row in range(self.size - 4):
-				find = True
-				winnerColor = self.model[row][col]
-				if winnerColor == 0:
+			winnerColor = 0
+			colorCount = 0
+			for row in range(self.size):
+				curColor = self.model[row][col]
+				if curColor == 0:
 					continue
-				for k in range(5):
-					if not self.model[row+k][col] == winnerColor:
-						find = False
-						break
-				if find:
+				if curColor == winnerColor:
+					if winnerColor != 0:
+						colorCount += 1
+				else: 
+					winnerColor = curColor
+					colorCount = 1
+				if colorCount == 5:
 					return winnerColor
 
-		# right-down
 		for diff in range(self.size - 4):
-			for row in range(diff, self.size - 4):
-				find = True
-				winnerColor = self.model[row][row-diff]
-				if winnerColor == 0:
+			winnerColor = 0
+			colorCount = 0
+			for row in range(diff, self.size):
+				curColor = self.model[row][row-diff]
+				if curColor == 0:
 					continue
-				for k in range(5):
-					if not self.model[row + k][row- diff + k] == winnerColor:
-						find =False
-						break
-				if find:
-					return winnerColor
-			for col in range(diff, self.size-4):
-				find = True
-				winnerColor = self.model[col - diff][col]
-				if winnerColor == 0:
-					continue
-				for k in range(5):
-					if not self.model[col - diff + k][col + k] == winnerColor:
-						find = False
-						break
-				if find:
+				if curColor == winnerColor:
+					if winnerColor != 0:
+						colorCount += 1
+				else: 
+					winnerColor = curColor
+					colorCount = 1
+				if colorCount == 5:
 					return winnerColor
 
-		#  left-down
-		for accum in range(4, self.size):
-			for row in range(accum + 1 - 4):
-				find = True
-				winnerColor = self.model[row][accum-row]
-				if winnerColor == 0:
+			winnerColor = 0
+			colorCount = 0
+			for col in range(diff, self.size):
+				curColor = self.model[col - diff][col]
+				if curColor == 0:
 					continue
-				for k in range(5):
-					if not self.model[row + k][accum - row - k] == winnerColor:
-						find = False
-						break
-				if find:
+				if curColor == winnerColor:
+					if winnerColor != 0:
+						colorCount += 1
+				else: 
+					winnerColor = curColor
+					colorCount = 1
+				if colorCount == 5:
+					return winnerColor
+
+		
+		for accum in range(4, self.size):
+			winnerColor = 0
+			colorCount = 0
+			for row in range(accum + 1):
+				curColor = self.model[row][accum-row]
+				if curColor == 0:
+					continue
+				if curColor == winnerColor:
+					if winnerColor != 0:
+						colorCount += 1
+				else: 
+					winnerColor = curColor
+					colorCount = 1
+				if colorCount == 5:
 					return winnerColor
 
 		for accum in range(self.size, self.size* 2 - 5):
-			for col in range(accum + 1 - self.size , self.size - 4):
-				find = True
-				winnerColor = self.model[accum - col][col]
-				if winnerColor == 0:
+			winnerColor = 0
+			colorCount = 0
+			for col in range(accum + 1 - self.size , self.size):
+				curColor = self.model[accum - col][col]
+				if curColor == 0:
 					continue
-				for k in range(5):
-					if not self.model[accum - col - k][col + k] == winnerColor:
-						find = False
-						break
-				if find:
+				if curColor == winnerColor:
+					if winnerColor != 0:
+						colorCount += 1
+				else: 
+					winnerColor = curColor
+					colorCount = 1
+				if colorCount == 5:
 					return winnerColor
 		
 		return 0

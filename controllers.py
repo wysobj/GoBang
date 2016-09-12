@@ -1,5 +1,6 @@
 import board
 import views
+import montecarlo
 import random
 import exceptions
 
@@ -33,6 +34,7 @@ class BoardController:
 		self.boardSize = size
 		self.board = board.Board(size = size, color = colorId)
 		self.view = views.BoardView(self.board)
+		self.AI = montecarlo.MonteCarloAI(self.board, self.AIColor)
 		self.playerTrace = []
 		self.aiTrace = []
 
@@ -42,14 +44,11 @@ class BoardController:
 			currentColor = self.board.currentColor()
 			self.view.displayBoard()
 			if currentColor == self.AIColor:
-				aiPlayed = False
-				while not aiPlayed:
-					aiRow = random.randint(0, self.board.size - 1)
-					aiCol = random.randint(0, self.board.size - 1)
-					aiPlayed = self.board.locationAvailabel((aiRow, aiCol))
-					if aiPlayed:
-						self.board.update((aiRow, aiCol), self.AIColor)
-						self.aiTrace.append((aiRow, aiCol))
+				print('')
+				print("AI is thinking...")
+				aiLocation = self.AI.getLocation()
+				self.board.update(aiLocation, self.AIColor)
+				self.aiTrace.append(aiLocation)
 			else :
 				commandParsed = False
 				while not commandParsed:
@@ -94,13 +93,16 @@ class BoardController:
 						print('Invalid command.')
 			draw = self.board.checkDraw()
 			if draw:
+				self.view.displayBoard()
 				print('Draw!')
 				exit(0)
 			winner = self.board.winner()
 			if winner == self.playerColor:
+				self.view.displayBoard()
 				print('You win!')
 				exit(0)
 			elif winner == self.AIColor:
+				self.view.displayBoard()
 				print('You lose!')
 				exit(0)
 
@@ -123,6 +125,7 @@ class BoardController:
 	def restart(self):
 		self.board = board.Board(size = self.boardSize, color = self.playerColor)
 		self.view = views.BoardView(self.board)
+		self.AI = montecarlo.MonteCarloAI(self.board, self.AIColor)
 		self.playerTrace = []
 		self.aiTrace = []
 		self.start()
