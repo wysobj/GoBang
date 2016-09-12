@@ -1,4 +1,4 @@
 import board
 
-def grade(self, model, color):
+def grade(board, color):
 	pass
