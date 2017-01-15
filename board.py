@@ -15,38 +15,34 @@ class Board:
         self.blank_color = args.get('blank', 0)
         self.white_color = args.get('white', 1)
         self.black_color = args.get('black', 2)
-        self.white_trace = []
-        self.black_trace = []
+        black_offensive = args.get('black_offensive', True)
+        self.trace = []
+        self.offensive_color = self.black_color if black_offensive else white_color
+        self.defensive_color = self.white_color if black_offensive else black_color
+        self.model = [[0 for col in range(self.size)] for row in range(self.size)]
 
     def update(self, location, new_color):
         self.boundry_check(location)
-        if location in self.white_trace:
-            old_color = self.white_color
-            conflict_trace = self.white_trace
-        elif location in self.black_trace:
-            old_color = self.black_color
-            conflict_trace = self.black_trace
-        else:
-            conflict_trace = None
-            old_color = self.blank_color
-        if old_color != self.blank_color and new_color != self.blank_color:
+        row = location[0]
+        col = location[1]
+        location_occupied = self.model[row][col] != self.blank_color
+        if location_occupied and new_color != self.blank_color:
             raise exceptions.OccupiedException()
-        elif old_color != self.blank_color and new_color == self.blank_color:
-            conflict_trace.remove(location)
-        elif old_color == self.blank_color and new_color != self.blank_color:
-            set_trace = self.white_trace if new_color == self.white_color else self.black_trace
-            set_trace.append(location)
+        elif location_occupied and new_color == self.blank_color:
+            self.trace.remove(location)
+            self.model[row][col] = new_color
+        elif not location_occupied and new_color != self.blank_color:
+            self.trace.append(location)
+            self.model[row][col] = new_color
         else:
             raise exceptions.InvalidePlayLocationException()
 
     def color_of_location(self, location):
         self.boundry_check(location)
-        if location in self.white_trace:
-            return self.white_color
-        elif location in self.black_trace:
-            return self.black_color
-        else:
-            return self.blank_color
+        row = location[0]
+        col = location[1]
+        color_of_location = self.model[row][col]
+        return color_of_location
 
     def boundry_check(self, location):
         row = location[0]
@@ -56,38 +52,38 @@ class Board:
 
     def location_available(self, location):
         self.boundry_check(location)
-        return location not in self.white_trace and location not in self.black_trace
+        return location not in self.trace
 
     def rounds_played(self):
-        return len(self.white_trace) + len(self.black_trace)
+        return len(self.trace)
 
     def fork(self):
         new_board = Board(size = self.size)
-        new_board.size = self.size
         new_board.blank_color = self.blank_color
         new_board.white_color = self.white_color
         new_board.black_color = self.black_color
-        new_board.white_trace = [wl for wl in self.white_trace]
-        new_board.black_trace = [bl for bl in self.black_trace]
+        for round_idx in range(self.rounds_played()):
+            round_color = self.offensive_color if round_idx%2==0 else self.defensive_color
+            new_board.update(self.trace[round_idx], round_color)
         return new_board
 
     def __hash__(self):
         hashcode = 0
-        for wc in self.white_trace:
-            hashcode += wc[0] * self.size * self.size + wc[1]
-        for bc in self.black_trace:
-            hashcode += bc[0] * self.size * self.size + bc[1]
-        hashcode += self.rounds_played() * self.size * self.size
+        for round_idx in range(self.rounds_played()):
+            hashcode += self.trace[round_idx][0] * self.size * self.size + self.trace[round_idx][1]
         return hashcode
 
     def __eq__(self, other):
-        if self.rounds_played() != other.rounds_played():
+    #     import datetime
+    #     s = datetime.datetime.utcnow()
+        if other == None:
             return False
-        for i in range(len(self.white_trace)):
-            if self.white_trace[i] != other.white_trace[i]:
-                return False
-        for i in range(len(self.black_trace)):
-            if self.black_trace[i] != other.black_trace[i]:
-                return False
+        if not isinstance(other, Board) and self.rounds_played() != other.rounds_played():
+            return False
+        for i in range(self.size):
+            for j in range(self.size):
+                if self.model[i][j] != other.model[i][j]:
+                    return False
+        # e = datetime.datetime.utcnow()
+        # print("Compare time:"+str(e-s))
         return True
-

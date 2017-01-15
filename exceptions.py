@@ -10,7 +10,7 @@ class UnSupportException(Exception):
      def __init__(self):
          pass
 
-class BoradUnbindException(Exception):
+class BoardUnbindException(Exception):
     def __init__(self):
          pass
 
